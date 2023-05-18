@@ -2298,7 +2298,7 @@ string FIXED_BBOX 0 0 560000 352000
 string LEFclass BLOCK
 string LEFview TRUE
 string GDS_END 53140460
-string GDS_FILE /home/passant/efabless/caravel_user_project/openlane/user_proj_example/runs/23_03_03_14_26/results/signoff/user_proj_example.magic.gds
+string GDS_FILE /home/passant/efabless/caravel_user_project/openlane/user_proj/runs/23_03_03_14_26/results/signoff/user_proj.magic.gds
 string GDS_START 370430
 << end >>
 

@@ -1,4 +1,4 @@
-library (user_proj_example) {
+library (user_proj) {
   comment                        : "";
   delay_model                    : table_lookup;
   simulation                     : false;
@@ -855,7 +855,7 @@ library (user_proj_example) {
     bit_to : 0;
   }
 
-  cell ("user_proj_example") {
+  cell ("user_proj") {
     pin("wb_clk_i") {
       direction : input;
       capacitance : 0.0647;

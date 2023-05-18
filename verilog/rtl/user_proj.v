@@ -17,7 +17,7 @@
 /*
  *-------------------------------------------------------------
  *
- * user_proj_example
+ * user_proj
  *
  * This is an example of a (trivially simple) user project,
  * showing how the user project can connect to the logic
@@ -35,7 +35,7 @@
  *-------------------------------------------------------------
  */
 
-module user_proj_example #(
+module user_proj #(
     parameter BITS = 32
 )(
 `ifdef USE_POWER_PINS

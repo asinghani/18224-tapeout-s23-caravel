@@ -2,9 +2,9 @@ VERSION 5.7 ;
   NOWIREEXTENSIONATPIN ON ;
   DIVIDERCHAR "/" ;
   BUSBITCHARS "[]" ;
-MACRO user_proj_example
+MACRO user_proj
   CLASS BLOCK ;
-  FOREIGN user_proj_example ;
+  FOREIGN user_proj ;
   ORIGIN 0.000 0.000 ;
   SIZE 2800.000 BY 1760.000 ;
   PIN io_in[0]
@@ -5046,6 +5046,6 @@ MACRO user_proj_example
         RECT 1148.455 20.575 1172.640 110.665 ;
         RECT 1175.040 20.575 1211.345 110.665 ;
   END
-END user_proj_example
+END user_proj
 END LIBRARY
 
