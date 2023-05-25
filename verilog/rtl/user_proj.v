@@ -14,26 +14,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 `default_nettype none
-/*
- *-------------------------------------------------------------
- *
- * user_proj
- *
- * This is an example of a (trivially simple) user project,
- * showing how the user project can connect to the logic
- * analyzer, the wishbone bus, and the I/O pads.
- *
- * This project generates an integer count, which is output
- * on the user area GPIO pads (digital output only).  The
- * wishbone connection allows the project to be controlled
- * (start and stop) from the management SoC program.
- *
- * See the testbenches in directory "mprj_counter" for the
- * example programs that drive this user project.  The three
- * testbenches are "io_ports", "la_test1", and "la_test2".
- *
- *-------------------------------------------------------------
- */
 
 module user_proj #(
     parameter BITS = 32
@@ -44,120 +24,60 @@ module user_proj #(
 `endif
 
     // Wishbone Slave ports (WB MI A)
-    input wb_clk_i,
-    input wb_rst_i,
-    input wbs_stb_i,
-    input wbs_cyc_i,
-    input wbs_we_i,
-    input [3:0] wbs_sel_i,
-    input [31:0] wbs_dat_i,
-    input [31:0] wbs_adr_i,
-    output wbs_ack_o,
-    output [31:0] wbs_dat_o,
+    input wire wb_clk_i,
+    input wire wb_rst_i,
+    input wire wbs_stb_i,
+    input wire wbs_cyc_i,
+    input wire wbs_we_i,
+    input wire [3:0] wbs_sel_i,
+    input wire [31:0] wbs_dat_i,
+    input wire [31:0] wbs_adr_i,
+    output wire wbs_ack_o,
+    output wire [31:0] wbs_dat_o,
 
     // Logic Analyzer Signals
-    input  [127:0] la_data_in,
-    output [127:0] la_data_out,
-    input  [127:0] la_oenb,
+    input wire [127:0] la_data_in,
+    output wire [127:0] la_data_out,
+    input wire [127:0] la_oenb,
 
     // IOs
-    input  [15:0] io_in,
-    output [15:0] io_out,
-    output [15:0] io_oeb,
+    input wire [37:0] io_in,
+    output wire [37:0] io_out,
+    output wire [37:0] io_oeb,
 
     // IRQ
-    output [2:0] irq
+    output wire [2:0] irq
 );
-    wire clk;
-    wire rst;
 
-    wire [15:0] io_in;
-    wire [15:0] io_out;
-    wire [15:0] io_oeb;
+    assign wb_ack_o = 0;
+    assign wbs_dat_o = 0;
+    assign la_data_out = 0;
 
-    wire [15:0] rdata; 
-    wire [15:0] wdata;
-    wire [15:0] count;
+    assign io_oeb = {{12{1'b0}},  // [37:26] = outputs
+                     {12{1'b1}},  // [25:14] = inputs
+                     {6{1'b1}},   // [13:8] = des select
+                     {1{1'b1}},   // [7:7] = hold reset
+                     {1{1'b1}},   // [6:6] = reset
+                     {6{1'b1}}};  // [5:0] = unused inputs
 
-    wire valid;
-    wire [3:0] wstrb;
-    wire [31:0] la_write;
+    assign io_out[25:0] = 0;
 
-    // WB MI A
-    assign valid = wbs_cyc_i && wbs_stb_i; 
-    assign wstrb = wbs_sel_i & {4{wbs_we_i}};
-    assign wbs_dat_o = rdata;
-    assign wdata = wbs_dat_i[15:0];
+    reg [4:0] reset_sync;
+    wire des_reset = reset_sync[4];
+    always @(posedge wb_clk_i) begin
+        reset_sync <= {reset_sync, io_in[6]};
+    end
 
-    // IO
-    assign io_out = count;
-    assign io_oeb = {(15){rst}};
-
-    // IRQ
-    assign irq = 3'b000;	// Unused
-
-    // LA
-    assign la_data_out = {{(127-BITS){1'b0}}, count};
-    // Assuming LA probes [63:32] are for controlling the count register  
-    assign la_write = ~la_oenb[63:32] & ~{BITS{valid}};
-    // Assuming LA probes [65:64] are for controlling the count clk & reset  
-    assign clk = (~la_oenb[64]) ? la_data_in[64]: wb_clk_i;
-    assign rst = (~la_oenb[65]) ? la_data_in[65]: wb_rst_i;
-
-    counter #(
-        .BITS(BITS)
-    ) counter(
-        .clk(clk),
-        .reset(rst),
-        .ready(wbs_ack_o),
-        .valid(valid),
-        .rdata(rdata),
-        .wdata(wbs_dat_i),
-        .wstrb(wstrb),
-        .la_write(la_write),
-        .la_input(la_data_in[63:32]),
-        .count(count)
+    // TODO: add an override to inputs thru caravel
+    design_instantiations designs (
+        .io_in(io_in[25:14]),
+        .io_out(io_out[37:26]),
+        .clock(wb_clk_i),
+        .reset(des_reset),
+        .des_sel(io_in[13:8]),
+        .hold_if_not_sel(io_in[7])
     );
 
 endmodule
 
-module counter #(
-    parameter BITS = 32
-)(
-    input clk,
-    input reset,
-    input valid,
-    input [3:0] wstrb,
-    input [15:0] wdata,
-    input [BITS-1:0] la_write,
-    input [BITS-1:0] la_input,
-    output ready,
-    output [15:0] rdata,
-    output [15:0] count
-);
-    reg ready;
-    reg [15:0] count;
-    reg [15:0] rdata;
-
-    always @(posedge clk) begin
-        if (reset) begin
-            count <= 0;
-            ready <= 0;
-        end else begin
-            ready <= 1'b0;
-            if (~|la_write) begin
-                count <= count + 1;
-            end
-            if (valid && !ready) begin
-                ready <= 1'b1;
-                rdata <= count;
-                if (wstrb[0]) count[7:0]   <= wdata[7:0];
-                if (wstrb[1]) count[15:8]  <= wdata[15:8];
-            end else if (|la_write) begin
-                count <= la_write & la_input;
-            end
-        end
-    end
-
-endmodule
 `default_nettype wire
