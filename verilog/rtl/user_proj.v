@@ -51,31 +51,39 @@ module user_proj #(
 
     assign wb_ack_o = 0;
     assign wbs_dat_o = 0;
-    assign la_data_out = 0;
 
     assign io_oeb = {{12{1'b0}},  // [37:26] = outputs
                      {12{1'b1}},  // [25:14] = inputs
                      {6{1'b1}},   // [13:8] = des select
                      {1{1'b1}},   // [7:7] = hold reset
-                     {1{1'b1}},   // [6:6] = reset
-                     {6{1'b1}}};  // [5:0] = unused inputs
+                     {1{1'b1}},   // [6:6] = sync inputs
+                     {1{1'b1}},   // [5:5] = reset
+                     {5{1'b1}}};  // [4:0] = unused inputs
 
     assign io_out[25:0] = 0;
 
     reg [4:0] reset_sync;
     wire des_reset = reset_sync[4];
     always @(posedge wb_clk_i) begin
-        reset_sync <= {reset_sync, io_in[6]};
+        reset_sync <= {reset_sync, io_in[5]};
     end
 
-    // TODO: add an override to inputs thru caravel
+    CoreTop risc240_core (
+        .clock(wb_clk_i),
+        .reset(des_reset),
+        .io_la_data_in(la_data_in),
+        .io_la_data_out(la_data_out),
+        .io_la_oenb(la_oen)
+    );
+
     design_instantiations designs (
         .io_in(io_in[25:14]),
         .io_out(io_out[37:26]),
         .clock(wb_clk_i),
         .reset(des_reset),
         .des_sel(io_in[13:8]),
-        .hold_if_not_sel(io_in[7])
+        .hold_if_not_sel(io_in[7]),
+        .sync_inputs(io_in[6])
     );
 
 endmodule
