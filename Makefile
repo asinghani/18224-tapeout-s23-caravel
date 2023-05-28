@@ -112,7 +112,7 @@ dv-targets-gl=$(dv_patterns:%=verify-%-gl)
 dv-targets-gl-sdf=$(dv_patterns:%=verify-%-gl-sdf)
 
 TARGET_PATH=$(shell pwd)
-verify_command="source ~/.bashrc && cd ${TARGET_PATH}/verilog/dv/$* && export SIM=${SIM} && make"
+verify_command="source ~/.bashrc && cd ${TARGET_PATH}/verilog/dv/$* && export SIM=${SIM} && stdbuf -i0 -o0 -e0 make -B"
 dv_base_dependencies=simenv
 docker_run_verify=\
 	docker run -v ${TARGET_PATH}:${TARGET_PATH} -v ${PDK_ROOT}:${PDK_ROOT} \
