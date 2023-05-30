@@ -1,0 +1,7 @@
+make[1]: Entering directory `/ux1/users/asinghan/18224-tapeout-s23-caravel/verilog/dv/la_test2'
+Makefile:27: /verilog/dv/make/env.makefile: No such file or directory
+Makefile:28: /verilog/dv/make/var.makefile: No such file or directory
+Makefile:29: /verilog/dv/make/cpu.makefile: No such file or directory
+Makefile:30: /verilog/dv/make/sim.makefile: No such file or directory
+make[1]: *** No rule to make target `/verilog/dv/make/sim.makefile'.  Stop.
+make[1]: Leaving directory `/ux1/users/asinghan/18224-tapeout-s23-caravel/verilog/dv/la_test2'

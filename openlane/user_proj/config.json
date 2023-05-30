@@ -14,14 +14,14 @@
     "GRT_ANT_ITERS": 10,
     "GRT_ANT_MARGIN": 100,
 
-    "CLOCK_PERIOD": 30,
+    "CLOCK_PERIOD": 36,
     "CLOCK_PORT": "wb_clk_i",
     "FP_SIZING": "absolute",
-    "DIE_AREA": "0 0 2200 1700",
+    "DIE_AREA": "0 0 2200 2200",
     "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
     "NO_SYNTH_CELL_LIST": "dir::no_synth.cells",
     "DRC_EXCLUDE_CELL_LIST": "dir::drc_exclude.cells",
-    "PL_TARGET_DENSITY": 0.10,
+    "PL_TARGET_DENSITY": 0.08,
     "PL_RESIZER_SETUP_SLACK_MARGIN": 0.4,
     "PL_RESIZER_MAX_SLEW_MARGIN": 50,
     "GLB_RESIZER_MAX_SLEW_MARGIN": 50,
@@ -40,7 +40,7 @@
     "SYNTH_STRATEGY": "AREA 0",
     "RUN_CVC": 1,
     "pdk::sky130*": {
-        "FP_CORE_UTIL": 15,
+        "FP_CORE_UTIL": 13,
         "RT_MAX_LAYER": "met4"
     }
 }

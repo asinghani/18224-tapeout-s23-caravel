@@ -49,7 +49,7 @@ module user_proj #(
     output wire [2:0] irq
 );
 
-    assign wb_ack_o = 0;
+    assign wbs_ack_o = 0;
     assign wbs_dat_o = 0;
 
     assign io_oeb = {{12{1'b0}},  // [37:26] = outputs
@@ -73,7 +73,7 @@ module user_proj #(
         .reset(des_reset),
         .io_la_data_in(la_data_in),
         .io_la_data_out(la_data_out),
-        .io_la_oenb(la_oen)
+        .io_la_oenb(la_oenb)
     );
 
     design_instantiations designs (
