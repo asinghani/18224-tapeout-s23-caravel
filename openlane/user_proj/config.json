@@ -12,7 +12,7 @@
 
     "GRT_MAX_DIODE_INS_ITERS": 10,
     "GRT_ANT_ITERS": 10,
-    "GRT_ANT_MARGIN": 100,
+    "GRT_ANT_MARGIN": 40,
 
     "CLOCK_PERIOD": 36,
     "CLOCK_PORT": "wb_clk_i",

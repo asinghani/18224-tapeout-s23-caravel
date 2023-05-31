@@ -3,66 +3,54 @@
 `timescale 1 ns / 1 ps
 
 module counter_tb;
-	reg clock;
-	reg RSTB;
-	reg CSB;
-	reg power1, power2;
-	reg power3, power4;
+	reg clock, RSTB, CSB;
 
 	wire gpio;
 	wire [37:0] mprj_io;
 
-    wire [11:0] proj_out;
-    reg [11:0] proj_in;
+    wire [11:0] io_out;
+    reg [11:0] io_in;
     reg [5:0] des_sel;
     reg hold_reset;
     reg sync_inputs;
-    reg des_reset;
-
-    assign proj_out = mprj_io[37:26];
-    assign mprj_io[25:14] = proj_in;
-    assign mprj_io[13:8] = des_sel;
-    assign mprj_io[7:7] = hold_reset;
-    assign mprj_io[6:6] = sync_inputs;
-    assign mprj_io[5:5] = des_reset;
-    assign mprj_io[4:0] = 5'b0;
+    reg reset;
 
 	initial begin
 		RSTB <= 1'b0;
 		CSB  <= 1'b1;		// Force CSB high
 		#2000;
-		RSTB <= 1'b1; // Release reset
-		#300000;
-		CSB = 1'b0;		// CSB can be released
-	end
-
-	initial begin
-        $display($time,, "INIT");
-		#760000;
-        $display($time,, "START");
-
-        $monitor("[%d] proj_out=%b mprj_io=%b", $time, proj_out, mprj_io);
-
-        des_sel = 6'd2;
-        proj_in = 12'b1;
-        hold_reset = 1;
-        sync_inputs = 0;
-        des_reset = 1;
-        repeat(10) @(posedge clock);
-        des_reset = 0;
-	end
-
-	always #12.5 clock <= (clock === 1'b0);
-	initial begin
-		clock = 0;
+`ifdef GL
+        RSTB <= 1'b1; // Release reset
+        #300000;
+        CSB = 1'b0;		// CSB can be released
+`endif
 	end
 
 	initial begin
 		$dumpfile("counter.vcd");
 		$dumpvars(0, counter_tb);
 
-		#760000;
-        repeat (200) @(posedge clock);
+        $display($time,, "Init TB");
+        #4000;
+`ifdef GL
+        #760000;
+`endif
+        $display($time,, "Start TB");
+
+        $monitor("[%d] io_out=%d mprj_io=%b", $time, io_out, mprj_io);
+
+        des_sel = 6'd2;
+        io_in = 12'b1;
+        hold_reset = 1;
+        sync_inputs = 0;
+        reset = 1;
+        repeat(5) @(posedge clock);
+        reset = 0;
+
+        repeat (100) @(posedge clock);
+
+        io_in = 12'b11;
+        repeat (20) @(posedge clock);
 
 		`ifdef GL
 			$display ("Monitor: Test (GL) Done");
@@ -71,6 +59,27 @@ module counter_tb;
 		`endif
 		$finish;
 	end
+
+	always #12.5 clock <= (clock === 1'b0);
+	initial begin
+		clock = 0;
+	end
+
+
+    assign io_out = mprj_io[37:26];
+    assign mprj_io[25:14] = io_in;
+    assign mprj_io[13:8] = des_sel;
+    assign mprj_io[7:7] = hold_reset;
+    assign mprj_io[6:6] = sync_inputs;
+    assign mprj_io[5:5] = reset;
+    assign mprj_io[4:0] = 5'b0;
+
+
+    // ===================================================================
+    // ===================================================================
+
+	reg power1, power2;
+	reg power3, power4;
 
 	initial begin		// Power-up sequence
 		power1 <= 1'b0;
